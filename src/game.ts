@@ -1,4 +1,5 @@
 import { Display, Map, Scheduler } from 'rot-js';
+import { Room } from 'rot-js/lib/map/features';
 import simple from 'rot-js/lib/scheduler/simple';
 import { Player, Enemy } from './entity';
 import * as util from './util';
@@ -33,15 +34,43 @@ export class Game {
         mainLoop(scheduler, this);
     }
     private generateMap() {
-        const digger = new Map.Digger(50, 25);
+        const roomSize: [number, number] = [3, 8];
+        const corridorLength: [number, number] = [3, 10];
+        const diggerOptions = {
+            "roomWidth": roomSize,
+            "roomHeight": roomSize,
+            // "corridorLength": corridorLength,
+            "dugPercentage": 0.3,
+        }
+        const digger = new Map.Digger(50, 25, diggerOptions);
         const freeCells: string[] = [];
-        const digCallback = (x: number, y: number, value: string) => {
+        const digCallback = (x: number, y: number, value: number) => {
             if (value) { return; } // do not store walls
             let key = util.packCell(x, y);
             freeCells.push(key);
             this.map[key] = '.';
         }
         digger.create(digCallback.bind(this));
+        let room: Room;
+        for (room of digger.getRooms()) {
+            // Draw walls on room boundaries
+            const wall = "#";
+            let width: number = room.getRight() - room.getLeft();
+            let height: number = room.getBottom() - room.getTop();
+            for (let i = -1; i < width+2; i++) {
+                this.map[util.packCell(room.getLeft() + i, room.getTop()-1)] = wall;
+                this.map[util.packCell(room.getLeft() + i, room.getBottom()+1)] = wall;
+            }
+            for (let i = -1; i < height+2; i++) {
+                this.map[util.packCell(room.getLeft()-1, room.getTop() + i)] = wall;
+                this.map[util.packCell(room.getRight()+1, room.getTop() + i)] = wall;
+            }
+            // Draw doors
+            const door = "+";
+            room.getDoors((x, y) => {
+                this.map[util.packCell(x,y)] = door;
+            });
+        }
         this.generateBoxes(freeCells);
         this.drawWholeMap();
         this.createEntities(freeCells);

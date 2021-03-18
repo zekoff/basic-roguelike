@@ -22,6 +22,14 @@ class Entity {
     act() {}
 }
 
+function passableCallback(x: number, y: number) {
+    const cellKey = util.packCell(x, y);
+    const passableCharacters = ['.', '+', '*'];
+    return (cellKey in this.game.map &&
+        passableCharacters.includes(this.game.map[cellKey])
+    );
+}
+
 export class Player extends Entity {
     private done: boolean;
     constructor(
@@ -56,8 +64,7 @@ export class Player extends Entity {
         var diff = DIRS[8][keyMap[code]];
         var newX = this.x + diff[0];
         var newY = this.y + diff[1];
-        var newKey = newX + "," + newY;
-        if (!(newKey in this.game.map)) {return false;}
+        if (!passableCallback.bind(this)(newX, newY)) {return false;}
     
         this.game.display.draw(
             this.x,
@@ -95,9 +102,6 @@ export class Enemy extends Entity {
     act() {
         var playerX = this.game.player.x;
         var playerY = this.game.player.y;
-        var passableCallback = function(x: number, y: number) {
-            return (util.packCell(x, y) in this.game.map);
-        };
         var astar = new Path.AStar(
             playerX,
             playerY,
