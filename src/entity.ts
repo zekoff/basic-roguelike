@@ -11,7 +11,7 @@ class Entity {
         public y: number,
     ) {}
     draw() {
-        this.game.display.draw(
+        this.game.mapDisplay.draw(
             this.x,
             this.y,
             this.renderCharacter,
@@ -32,6 +32,10 @@ function passableCallback(x: number, y: number) {
 
 export class Player extends Entity {
     private done: boolean;
+    level: number = 1;
+    xp: number = 0;
+    hp: number = 10;
+    str: number = 12;
     constructor(
         x: number,
         y: number,
@@ -41,12 +45,16 @@ export class Player extends Entity {
     }
     async act() {
         this.done = false;
+        this.game.statDisplay.drawText(1, 1, `Level: ${this.level}`);
+        this.game.statDisplay.drawText(13, 1, `XP: ${this.xp}`)
+        this.game.statDisplay.drawText(25, 1, `HP: ${this.hp}`)
+        this.game.statDisplay.drawText(37, 1, `STR: ${this.str}`)
         while (!this.done && this.game.active) {
             await new Promise(
                 response => { window.addEventListener('keydown', response, {"once": true}); }
             ).then( (keystroke: KeyboardEvent) => { this.done = this.processKeystroke(keystroke); } );
         }
-        if (this.game.active) util.showMessage(" ", this.game.display);
+        if (this.game.active) util.showMessage(" ", this.game.messageDisplay);
     }
     private processKeystroke(e: KeyboardEvent) {
         var keyMap = {
@@ -66,7 +74,7 @@ export class Player extends Entity {
         var newY = this.y + diff[1];
         if (!passableCallback.bind(this)(newX, newY)) {return false;}
     
-        this.game.display.draw(
+        this.game.mapDisplay.draw(
             this.x,
             this.y,
             this.game.map[util.packCell(this.x, this.y)],
@@ -81,12 +89,12 @@ export class Player extends Entity {
     private checkBox() {
         let packedCell = util.packCell(this.x, this.y);
         if (this.game.map[packedCell] != "*") {
-            util.showMessage("There is no box here.", this.game.display);
+            util.showMessage("There is no box here.", this.game.messageDisplay);
         } else if (packedCell == this.game.treasure) {
-            util.showMessage("You found the treasure and won this game!", this.game.display);
+            util.showMessage("You found the treasure and won this game!", this.game.messageDisplay);
             this.game.active = false;
         } else {
-            util.showMessage("This box is empty.", this.game.display);
+            util.showMessage("This box is empty.", this.game.messageDisplay);
         }
     }
 }
@@ -116,13 +124,13 @@ export class Enemy extends Entity {
     
         path.shift(); // remove enemy's position
         if (path.length == 1) {
-            util.showMessage("The enemy captured you. Game over.", this.game.display);
+            util.showMessage("The enemy captured you. Game over.", this.game.messageDisplay);
             this.game.active = false;
         } else {
             let newX: number, newY: number;
             newX = path[0][0];
             newY = path[0][1];
-            this.game.display.draw(
+            this.game.mapDisplay.draw(
                 this.x,
                 this.y,
                 this.game.map[util.packCell(this.x, this.y)],

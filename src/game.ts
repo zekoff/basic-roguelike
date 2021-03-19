@@ -13,20 +13,36 @@ async function mainLoop(scheduler: simple<any>, game: Game) {
 }
 
 export class Game {
-    display: Display;
+    mapDisplay: Display;
+    statDisplay: Display;
+    messageDisplay: Display;
     map: Record<string, string> = {};
     treasure: string;
     player: Player;
     enemy: Enemy;
     active: boolean = true;
     init() {
-        this.display = new Display({
+        this.mapDisplay = new Display({
             width: 50,
-            height: 26,
+            height: 25,
             fontSize: 18,
             forceSquareRatio: true
         });
-        document.body.appendChild(this.display.getContainer());
+        this.statDisplay = new Display({
+            width: 50,
+            height: 3,
+            fontSize: 18,
+            forceSquareRatio: true
+        });
+        this.messageDisplay = new Display({
+            width: 50,
+            height: 5,
+            fontSize: 18,
+            forceSquareRatio: true
+        });
+        document.body.appendChild(this.mapDisplay.getContainer());
+        document.body.appendChild(this.statDisplay.getContainer());
+        document.body.appendChild(this.messageDisplay.getContainer());
         this.generateMap();
         let scheduler = new Scheduler.Simple();
         scheduler.add(this.player, true);
@@ -93,7 +109,7 @@ export class Game {
     private drawWholeMap() {
         for (var key in this.map) {
             let [ x, y ] = util.unpackCell(key);
-            this.display.draw(x, y, this.map[key], null, null);
+            this.mapDisplay.draw(x, y, this.map[key], null, null);
         }
     }
 }

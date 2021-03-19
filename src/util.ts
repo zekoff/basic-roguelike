@@ -15,6 +15,7 @@ export function unpackCell(packedCell: string) {
 }
 
 export function showMessage(message: string, display: Display) {
-    for (let i = 0; i < 50; i++) display.draw(i, 25, " ", null, null);
-    display.drawText(0, 25, message, 50);
+    // for (let i = 0; i < 50; i++) display.draw(i, 25, " ", null, null);
+    display.clear()
+    display.drawText(1, 1, message, 48);
 }
