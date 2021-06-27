@@ -10,3 +10,4 @@ Classical Roguelike with basic features. Uses a TypeScript version of the ROT.js
 * Add health items or pickups
 * Change box icon when it has been inspected
 * Add graphical tiles
+* Separate drawing from update logic

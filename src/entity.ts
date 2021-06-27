@@ -62,9 +62,13 @@ export class Player extends Entity {
             "ArrowRight": 2,
             "ArrowDown": 4,
             "ArrowLeft": 6,
+            "k": 0,
+            "l": 2,
+            "j": 4,
+            "h": 6,
         };
         var code = e.key;
-        if (code == " ") {
+        if (code == " " || code == "Enter") {
             this.checkBox();
             return false;
         }
